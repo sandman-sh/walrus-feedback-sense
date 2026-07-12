@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.DS_Store
+*.log
+
+# Ignore agent customization directories
+.agents/
+.claude/
+agent/
+skills-lock.json

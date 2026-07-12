@@ -1,0 +1,20 @@
+{
+  "name": "walrus-feedback-agent",
+  "version": "1.0.0",
+  "description": "Walrus Feedback & Community Form Agent demonstration project",
+  "type": "module",
+  "main": "src/seed.ts",
+  "scripts": {
+    "seed": "node --loader ts-node/esm src/seed.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@mysten-incubation/memwal": "^0.0.7",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
