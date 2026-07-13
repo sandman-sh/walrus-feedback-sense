@@ -46,6 +46,13 @@ async function main() {
     namespace: namespace,
   });
 
+  // Optimize: Pre-configure server config with the official low-latency SUI Mainnet RPC
+  (memwal as any).serverConfig = {
+    packageId: "0xcee7a6fd8de52ce645c38332bde23d4a30fd9426bc4681409733dd50958a24c6",
+    network: "mainnet",
+    suiRpcUrl: "https://fullnode.mainnet.sui.io:443"
+  };
+
   // Check health and compatibility
   try {
     await memwal.health();
