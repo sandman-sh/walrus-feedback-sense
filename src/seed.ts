@@ -1,3 +1,15 @@
+import { webcrypto } from "node:crypto";
+
+if (typeof crypto === "undefined") {
+  globalThis.crypto = webcrypto as any;
+} else if (typeof crypto.subtle === "undefined") {
+  Object.defineProperty(crypto, "subtle", {
+    value: webcrypto.subtle,
+    writable: true,
+    configurable: true,
+  });
+}
+
 import * as dotenv from "dotenv";
 import { MemWal } from "@mysten-incubation/memwal";
 
@@ -120,6 +132,23 @@ async function main() {
     });
   } catch (err: any) {
     console.error("❌ Semantic search query 2 failed:", err.message || err);
+  }
+
+  // Test Query 3: Chrome high-severity bugs
+  const query3 = "Show me all high-severity bugs reported by Chrome users";
+  console.log(`\nQuery 3: "${query3}"`);
+  try {
+    const recallResult3 = await memwal.recall({
+      query: query3,
+      limit: 3,
+    });
+    
+    console.log(`Found ${recallResult3.results.length} matches:`);
+    recallResult3.results.forEach((match, idx) => {
+      console.log(`  ${idx + 1}. [Score Distance: ${match.distance.toFixed(4)}] ${match.text}`);
+    });
+  } catch (err: any) {
+    console.error("❌ Semantic search query 3 failed:", err.message || err);
   }
 
   console.log("\n==================================================");
