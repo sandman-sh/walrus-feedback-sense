@@ -40,6 +40,49 @@ async function main() {
     suiRpcUrl: "https://fullnode.mainnet.sui.io:443"
   };
 
+  // Override the hardcoded 15-second timeout in the SDK with a 60-second timeout
+  memwal.recall = async function (queryOrParams, limitOrOptions, namespace) {
+    let query;
+    let options;
+    if (typeof queryOrParams === "object") {
+      const { query: q, ...rest } = queryOrParams;
+      query = q;
+      options = rest;
+    } else {
+      query = queryOrParams;
+      if (limitOrOptions == null) {
+        options = { limit: 10, namespace };
+      } else if (typeof limitOrOptions === "number") {
+        options = { limit: limitOrOptions, namespace };
+      } else {
+        options = limitOrOptions;
+      }
+    }
+    const limit = options.topK ?? options.limit ?? 10;
+    const resolvedNamespace = options.namespace ?? this.namespace;
+    
+    const ac = new AbortController();
+    const tid = setTimeout(() => ac.abort(), 60000); // 60 seconds
+    try {
+      const result = await this.signedRequest("POST", "/api/recall", {
+        query,
+        limit,
+        namespace: resolvedNamespace,
+      }, { signal: ac.signal });
+      if (typeof options.maxDistance === "number") {
+        const filtered = result.results.filter((memory) => memory.distance < options.maxDistance);
+        return {
+          ...result,
+          results: filtered,
+          total: filtered.length,
+        };
+      }
+      return result;
+    } finally {
+      clearTimeout(tid);
+    }
+  };
+
   console.log(`🔍 Querying Walrus Memory for: "${query}"...`);
   try {
     const recallResult = await memwal.recall({
